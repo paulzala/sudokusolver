@@ -1,4 +1,4 @@
-examplePuzzle1 = [
+exampleStarter1 = [
     '060009040',
     '904200160',
     '058000000',
