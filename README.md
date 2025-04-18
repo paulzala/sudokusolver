@@ -10,3 +10,4 @@
 # How to use
 To run the rendered and show an example sudoku starter puzzle ion the console, run `python3 renderer.py`
 To run the solver, run `python3 solve.py`.
+ 

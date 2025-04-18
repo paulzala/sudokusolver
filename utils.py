@@ -42,3 +42,8 @@ def getPuzzleFromStarter(starter):
             puzzle.append(cell)
     return puzzle
 
+def unique(incomingList):
+    valuesHash = {}
+    for value in incomingList:
+        valuesHash[value] = True
+    return list(valuesHash.keys())

@@ -1,10 +1,37 @@
 from renderer import renderPuzzleFromStarter, renderActivePuzzle
-from examples import exampleStarter1
+from examples import exampleStarter1, exampleStarter2, exampleStarter3, exampleStarter4
 from utils import getPuzzleFromStarter
-from strategies import getCellsFromSameRow, discountCellBasedOnCells, getCellsFromSameColumn, getCellsFromSameBlock
+from strategies import (getCellsFromSameRow,
+                        discountCellBasedOnCells,
+                        getCellsFromSameColumn,
+                        getCellsFromSameBlock,
+                        solveSingleRemaindersByRow,
+                        solveSingleRemaindersByCol
+)
+import json
+import sys
 
-renderPuzzleFromStarter(exampleStarter1)
-puzzle = getPuzzleFromStarter(exampleStarter1)
+def renderPuzzleAndWaitForInput(puzzle):
+    renderActivePuzzle(puzzle)
+    command = input(f'Pass {passCount}, Step{stepCount}')
+    if command == 'save':
+        f = open('quicksave.json', 'w')
+        f.write(json.dumps(puzzle))
+        f.close()
+        print('saved quicksave.json')
+
+
+if len(sys.argv) > 1 and sys.argv[1] == 'load':
+    f = open('quicksave.json', 'r')
+    puzzle = json.loads(f.read())
+    f.close()
+    renderActivePuzzle(puzzle)
+    print('loaded from file')
+else:
+    puzzle = getPuzzleFromStarter(exampleStarter4)
+    renderPuzzleFromStarter(exampleStarter4)
+    
+
 # print(puzzle[1])
 input('Press enter to start solving')
 
@@ -30,6 +57,7 @@ while True:
             stepCount += 1
             # Discount values solved in the same row
             cells = getCellsFromSameRow(puzzle, cellIndex)
+            print(f'row grabbed for index {cellIndex}', cells)
             updatedCell = discountCellBasedOnCells(cell, cells)
             if updatedCell:
                 progressMadeThisPass = True
@@ -47,23 +75,34 @@ while True:
             
             # Discount values solved in the same black
             cells = getCellsFromSameBlock(puzzle, cellIndex)
-            print('cellIndexes grabbed', len(cells))
             updatedCell = discountCellBasedOnCells(cell, cells)
             if updatedCell:
                 progressMadeThisPass = True
                 progressMadeSinceLastPrint = True
                 puzzle[cellIndex] = updatedCell
 
-        # TODO show progress here right before input - need to make the rendered first
-        renderActivePuzzle(puzzle)
+        # renderActivePuzzle(puzzle)
         
         if progressMadeSinceLastPrint:
             progressMadeSinceLastPrint = False
-            input(f'Pass {passCount}, Step{stepCount}')
+            renderPuzzleAndWaitForInput(puzzle)
 
     # Next strategy: Is there only one place for X in each row?
+    for rowIndex in range(0,9):
+        stepCount += 1
+        progressMade = solveSingleRemaindersByRow(puzzle, rowIndex)
+        if progressMade:
+            renderPuzzleAndWaitForInput(puzzle)
+            progressMadeThisPass = True
+
 
     # Next strategy: Is there only one place for X in each col?
+    for colIndex in range(0,9):
+        stepCount += 1
+        progressMade = solveSingleRemaindersByCol(puzzle, colIndex)
+        if progressMade:
+            renderPuzzleAndWaitForInput(puzzle)
+            progressMadeThisPass = True
 
     # Next strategy: Is there only one place for X in each block? If 2-3 spots but in a line, rule out rest of line
     
